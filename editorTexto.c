@@ -1,3 +1,11 @@
+/**
+ * @file editorTexto.c
+ * @brief Arquivo com a implementação do TAD editor de texto utilizando pilha 
+ *        para sua manipulação
+ * @author Bernardo Venancio
+ * @date 2023-12-27
+*/
+
 /* Inclusões*/
 #include "editorTexto.h"
 #include <stdlib.h>
@@ -11,6 +19,13 @@
 #define MARCA_EOF '~'
 #define ESPACO ' '
 
+/* Funções auxiliares */
+/**
+ * @brief Função que verifica se um caractere é especial ou não
+ * @param caractere Caractere que será feita a verificação
+ * @return TRUE se o caractere for um dos caracteres especiais,
+ *         ou caso contrário, FALSE
+*/
 static bool_t ehCaractereEspecial(dadosItem caractere){
     //Não confiro MARCA_EOF porque ela é conferida anteriormente
     return (caractere == CANCELA_CARACTERE ||
@@ -19,6 +34,12 @@ static bool_t ehCaractereEspecial(dadosItem caractere){
             caractere == SALTA_LINHA);
 }
 
+/**
+ * @brief Função que verifica se a linha atual do editor atingiu o limite
+ * @param editor Apontador para o editor de texto a ser utilizado
+ * @return TRUE caso a linha esteja na capacidade máxima, ou caso contrário,
+ *         FALSE
+*/
 static bool_t atingiuLimiteLinha(editorTexto_t * editor){
     if(editor->pilhaLinha->size >= editor->maximoPorLinha ){
         return TRUE;
@@ -26,6 +47,12 @@ static bool_t atingiuLimiteLinha(editorTexto_t * editor){
     return FALSE;
 }
 
+/* Funções exportadas */
+/**
+ * @brief Função que cria e inicializa um editor
+ * @param maximoPorLinha Quantidade de caracteres por linha que o editor criado terá
+ * @return Apontador para o local que o editor foi criado e armazenado
+*/
 editorTexto_t * criaEditor(uint32_t maximoPorLinha){
     editorTexto_t * editor = (editorTexto_t *)malloc(sizeof(editorTexto_t));
     editor->maximoPorLinha = maximoPorLinha;
@@ -33,11 +60,16 @@ editorTexto_t * criaEditor(uint32_t maximoPorLinha){
     return editor;
 }
 
+/**
+ * @brief Função que imprime a linha atual do editor
+ * @param editor Apontador para o editor de texto a ser utilizado
+*/
 void imprimirLinha(editorTexto_t * editor){
     dadosItem impressao;
     uint32_t tamanhoTexto = (editor->pilhaLinha->size);
     uint32_t i = tamanhoTexto - 1;
-    //Não preciso de deixar espaço para mais 1 pois
+    //Salvo o texto num vetor de char na ordem inversa à da retirada da pilha, devido a natureza
+    //da retirada dos itens duma pilha
     char * textoInvertido = (char *)malloc(sizeof(char) * tamanhoTexto);
     while(popAndReturn(editor->pilhaLinha, &impressao) == TRUE){
         textoInvertido[i--] = impressao;
@@ -49,6 +81,10 @@ void imprimirLinha(editorTexto_t * editor){
     free(textoInvertido);
 }
 
+/**
+ * @brief Função que lê caracteres do usuário e realiza as operações definidas para o editor de texto
+ * @param editor Apontador para o editor de texto a ser utilizado
+*/
 void lerTexto(editorTexto_t * editor){
     dadosItem caractere;
     while((caractere = getchar()) != MARCA_EOF){
